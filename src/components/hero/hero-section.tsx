@@ -16,12 +16,12 @@ export function HeroSection() {
 						fill
 						sizes="80vw"
 						priority
-						className="object-cover object-center"
+						className="object-cover object-center translate-x-22"
 					/>
 				</div>
 
 				{/* Left Gradient */}
-				<div className="absolute inset-y-0 left-34 w-[30%] bg-linear-to-r from-background via-background/90 to-transparent" />
+				<div className="absolute inset-y-0 left-54 w-[30%] bg-linear-to-r from-background via-background/90 to-transparent" />
 
 				{/* Bottom Gradient */}
 				<div className="absolute inset-x-0 bottom-0 h-52 bg-linear-to-t from-background to-transparent" />

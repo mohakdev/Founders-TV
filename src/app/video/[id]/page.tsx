@@ -1,58 +1,90 @@
-import axios from "axios";
-import type { Comment } from "@/components/watch/comments/comment-section";
-import { CommentsSection } from "@/components/watch/comments/comment-section";
-import { Navbar } from "../../../components/layout/navbar";
-import { VideoDescription } from "../../../components/watch/video-description";
-import { VideoHeader } from "../../../components/watch/video-header";
-import { VideoPlayer } from "../../../components/watch/video-player";
+import { notFound } from "next/navigation";
 
-const comments: Comment[] = [
-	{
-		id: "1",
-		author: { id: "1", name: "John Doe", image: null },
-		content: "Great video!",
-		createdAt: "2023-10-01T12:00:00Z",
-		isOwner: true,
-	},
-	{
-		id: "2",
-		author: { id: "2", name: "Jane Smith", image: null },
-		content: "I learned a lot from this.",
-		createdAt: "2023-10-02T14:30:00Z",
-		isOwner: false,
-	},
-];
+import { CommentsSection } from "@/components/watch/comments/comment-section";
+import { Navbar } from "@/components/layout/navbar";
+import { VideoDescription } from "@/components/watch/video-description";
+import { VideoHeader } from "@/components/watch/video-header";
+import { VideoPlayer } from "@/components/watch/video-player";
+
+import { getCurrentUser } from "@/lib/auth/current-user";
+
 interface WatchProps {
 	params: Promise<{ id: string }>;
 }
+
+interface VideoResponse {
+	id: string;
+	youtubeId: string;
+	title: string;
+	description: string | null;
+	thumbnailUrl: string | null;
+	publishedAt: string | Date | null;
+	createdAt: string | Date;
+	viewCount: number;
+	likeCount: number;
+	commentCount: number;
+	collectionId: string | null;
+	collectionName: string | null;
+}
+
 export const dynamic = "force-dynamic";
+
 export default async function Watch({ params }: WatchProps) {
 	const { id } = await params;
+
+	const response = await fetch(
+		`${process.env.NEXT_PUBLIC_APP_URL}/api/videos/${id}`,
+		{
+			cache: "no-store",
+		},
+	);
+
+	if (!response.ok) {
+		if (response.status === 404) {
+			notFound();
+		}
+
+		throw new Error("Failed to fetch video");
+	}
+
+	const video: VideoResponse = await response.json();
+
+	const currentUser = await getCurrentUser();
+
+	const uploadedAt = new Date(
+		video.publishedAt ?? video.createdAt,
+	).toLocaleDateString("en-IN", {
+		day: "numeric",
+		month: "long",
+		year: "numeric",
+	});
+
 	return (
 		<main className="flex min-h-screen flex-col items-center pt-18 p-8">
 			<Navbar />
-			<VideoPlayer
-				youtubeId="https://youtu.be/M1E4ZzdpOco?si=bxr4gcvVKDM-u8tn"
-				title="Foundathon 3"
-			/>
+
+			<VideoPlayer youtubeId={video.youtubeId} title={video.title} />
+
 			<VideoHeader
-				title="Foundathon 3"
-				collection="Foundathon"
-				views={0}
-				likes={0}
-				comments={0}
-				uploadedAt="10 October 2026"
+				title={video.title}
+				collection={video.collectionName ?? "Founders Club"}
+				views={video.viewCount}
+				likes={video.likeCount}
+				comments={video.commentCount}
+				uploadedAt={uploadedAt}
 			/>
+
 			<VideoDescription
-				description="Foundathon 3.0 is a 48-hour hackathon where participants come together to build innovative solutions to real-world problems. This event is designed to foster creativity, collaboration, and entrepreneurship among developers, designers, and business enthusiasts. Participants will have the opportunity to work in teams, receive mentorship from industry experts, and showcase their projects to a panel of judges for a chance to win exciting prizes."
-				eventDate="10 October 2026"
+				description={
+					video.description ??
+					"No description available for this video."
+				}
+				eventDate={uploadedAt}
 				eventLocation="SRM Nagar, Kattankulathur, Tamil Nadu"
-				participants={150}
+				participants={0}
 			/>
-			<CommentsSection
-				currentUser={{ name: "John Doe", image: null }}
-				videoId={id}
-			/>
+
+			<CommentsSection currentUser={currentUser} videoId={id} />
 		</main>
 	);
 }

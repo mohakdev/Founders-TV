@@ -36,6 +36,7 @@ export function VideoDescription({
                 bg-white/[0.035]
                 p-8
                 backdrop-blur-xl
+				w-full
             "
 		>
 			{/* Metadata */}
@@ -50,13 +51,6 @@ export function VideoDescription({
 					<MetadataChip
 						icon={<MapPin size={16} />}
 						text={eventLocation}
-					/>
-				)}
-
-				{participants && (
-					<MetadataChip
-						icon={<Users size={16} />}
-						text={`${participants} Participants`}
 					/>
 				)}
 			</div>
