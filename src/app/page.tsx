@@ -14,11 +14,11 @@ type Collection = {
 	emoji: string;
 };
 
-const baseUrl = process.env.BASE_URL || "http://localhost:3000";
-
 async function fetchVideos() {
 	try {
-		const response = await axios.get(baseUrl + "/api/videos/");
+		const response = await axios.get(
+			process.env.NEXT_PUBLIC_APP_URL + "/api/videos/",
+		);
 		return response.data as Video[];
 	} catch (e) {
 		console.error("Error ", e);
@@ -27,7 +27,9 @@ async function fetchVideos() {
 }
 async function fetchCollections() {
 	try {
-		const response = await axios.get(baseUrl + "/api/collections/");
+		const response = await axios.get(
+			process.env.NEXT_PUBLIC_APP_URL + "/api/collections/",
+		);
 		return response.data as Collection[];
 	} catch (e) {
 		console.error("Error ", e);

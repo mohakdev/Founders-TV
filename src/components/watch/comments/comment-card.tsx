@@ -10,8 +10,6 @@ import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import axios from "axios";
-import { Video } from "@/components/video/video-grid";
 
 interface CommentCardProps {
 	author: {
@@ -178,7 +176,6 @@ export function CommentCard({
 							variant="ghost"
 							onClick={() => {
 								setEditedContent(content);
-
 								setIsEditing(false);
 							}}
 						>
