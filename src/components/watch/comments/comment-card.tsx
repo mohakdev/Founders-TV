@@ -1,17 +1,17 @@
 "use client";
 
-import { Heart, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
-
 import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-
+import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import axios from "axios";
+import { Video } from "@/components/video/video-grid";
 
 interface CommentCardProps {
 	author: {
@@ -123,11 +123,7 @@ export function CommentCard({
 
 							<DropdownMenuItem
 								onClick={onDelete}
-								className="
-									cursor-pointer
-									text-red-400
-									focus:text-red-400
-								"
+								className="cursor-pointer text-red-400 focus:text-red-400"
 							>
 								<Trash2 className="mr-2 my-1 h-4 w-4" />
 								Delete Comment
@@ -198,6 +194,7 @@ export function CommentCard({
 									setSaving(true);
 									await onUpdate(editedContent.trim());
 									setSaving(false);
+
 									setIsEditing(false);
 								} catch {
 									console.log("Unable to save comment");

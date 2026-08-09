@@ -1,8 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { ChevronDown } from "lucide-react";
-
 import {
 	NavigationMenu,
 	NavigationMenuContent,
@@ -10,13 +8,7 @@ import {
 	NavigationMenuList,
 	NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
-
-interface Collection {
-	id: string;
-	title: string;
-	subtitle: string;
-	emoji: string;
-}
+import Collection from "@/types/Collection";
 
 interface CollectionsDropdownProps {
 	collections: Collection[];
@@ -69,7 +61,7 @@ export function CollectionsDropdown({ collections }: CollectionsDropdownProps) {
                                                 text-white
                                             "
 										>
-											{collection.title}
+											{collection.name}
 										</h3>
 
 										<p
@@ -79,7 +71,7 @@ export function CollectionsDropdown({ collections }: CollectionsDropdownProps) {
                                                 text-neutral-400
                                             "
 										>
-											{collection.subtitle}
+											{collection.description}
 										</p>
 									</div>
 								</Link>

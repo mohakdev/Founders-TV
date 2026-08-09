@@ -1,10 +1,25 @@
 import { NextResponse } from "next/server";
 import { requireAuth } from "@/lib/auth/require-auth";
 import { createCommentSchema } from "@/validations";
-import { deleteComment, updateComment, createComment } from "@/services/comments";
+import {
+  createComment,
+  deleteComment,
+  getCommentsByVideo,
+  updateComment,
+} from "@/services/comments";
 import { handleApiError } from "@/lib/errors/error-handler";
 import { BadRequest } from "@/lib/errors/BadRequest";
 import { NotFoundError } from "@/lib/errors/NotFoundError";
+
+export async function GET(
+  _request: Request,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  const { id } = await params;
+  const comments = await getCommentsByVideo(id);
+
+  return NextResponse.json(comments);
+}
 
 export async function POST(request: Request,{ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params; //Video ID

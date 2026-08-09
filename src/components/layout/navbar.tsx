@@ -5,41 +5,12 @@ import Link from "next/link";
 import { UserCircle2 } from "lucide-react";
 import { CollectionsDropdown } from "./collections-dropdown";
 import { redirect } from "next/navigation";
+import Collection from "@/types/Collection";
 
-const collections = [
-	{
-		id: "foundathon-3",
-		title: "Foundathon 3.0",
-		subtitle: "Annual Flagship Hackathon",
-		emoji: "🏆",
-	},
-	{
-		id: "startup-weekend",
-		title: "Startup Weekend",
-		subtitle: "Entrepreneurship Bootcamp",
-		emoji: "🚀",
-	},
-	{
-		id: "orientation-2026",
-		title: "Orientation",
-		subtitle: "Welcome to Founders Club",
-		emoji: "🎉",
-	},
-	{
-		id: "guest-talk",
-		title: "Guest Lecture",
-		subtitle: "Industry Speaker Series",
-		emoji: "🎤",
-	},
-	{
-		id: "workshop-series",
-		title: "Workshop Series",
-		subtitle: "Hands-on Technical Sessions",
-		emoji: "💻",
-	},
-];
-
-export function Navbar() {
+interface NavbarProps {
+	collections?: Collection[];
+}
+export function Navbar({ collections = [] }: NavbarProps) {
 	return (
 		<header className="absolute top-0 left-0 z-50 w-full">
 			<nav className="mx-auto flex h-18 w-full items-center justify-between px-8 lg:px-14">

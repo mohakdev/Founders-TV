@@ -1,13 +1,27 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { MessageCircle } from "lucide-react";
+import axios from "axios";
 
 import { CommentCard } from "./comment-card";
 import { CommentInput } from "./comment-input";
 
 interface User {
+	id?: string;
 	name: string;
 	image?: string | null;
+}
+
+interface ApiComment {
+	id: string;
+	body: string;
+	createdAt: string;
+	updatedAt: string;
+	videoId: string;
+	userId: string;
+	userName: string;
+	userImage?: string | null;
 }
 
 export interface Comment {
@@ -28,31 +42,117 @@ export interface Comment {
 
 interface CommentsSectionProps {
 	currentUser?: User | null;
-
-	comments: Comment[];
-
-	totalComments: number;
-
-	onSubmitComment?: (comment: string) => Promise<void>;
-
+	videoId: string;
 	onDeleteComment?: (commentId: string) => void;
-
 	onLoadMore?: () => void;
-
 	hasMore?: boolean;
+}
+
+async function fetchComments(videoId: string): Promise<ApiComment[]> {
+	try {
+		const response = await axios.get(`/api/videos/${videoId}/comments`);
+
+		return response.data;
+	} catch (error) {
+		console.error("Error fetching comments:", error);
+		return [];
+	}
+}
+
+async function handleSubmitComment(body: string, videoId: string) {
+	try {
+		const response = await axios.post(`/api/videos/${videoId}/comments`, {
+			body,
+		});
+
+		return response.data;
+	} catch (error) {
+		console.error("Error submitting comment:", error);
+		return null;
+	}
 }
 
 export function CommentsSection({
 	currentUser,
-	comments,
-	totalComments,
-	onSubmitComment,
+	videoId,
 	onDeleteComment,
 	onLoadMore,
 	hasMore = false,
 }: CommentsSectionProps) {
+	const [comments, setComments] = useState<Comment[]>([]);
+	const [isLoading, setIsLoading] = useState(true);
+
+	useEffect(() => {
+		async function loadComments() {
+			setIsLoading(true);
+
+			const data = await fetchComments(videoId);
+
+			const formattedComments: Comment[] = data.map((comment) => ({
+				id: comment.id,
+
+				author: {
+					id: comment.userId,
+					name: comment.userName,
+					image: comment.userImage ?? null,
+				},
+
+				content: comment.body,
+
+				createdAt: comment.createdAt,
+
+				isOwner: currentUser?.id === comment.userId,
+			}));
+
+			setComments(formattedComments);
+			setIsLoading(false);
+		}
+
+		loadComments();
+	}, [videoId, currentUser?.id]);
+
+	async function submitComment(body: string) {
+		if (!body.trim()) {
+			return null;
+		}
+
+		const created = await handleSubmitComment(body, videoId);
+
+		if (!created) {
+			return null;
+		}
+
+		/*
+		 * The POST endpoint currently returns only the newly
+		 * inserted comment. The GET endpoint returns the joined
+		 * user information we need, so simply refetch after
+		 * creation.
+		 */
+		const data = await fetchComments(videoId);
+
+		const formattedComments: Comment[] = data.map((comment) => ({
+			id: comment.id,
+
+			author: {
+				id: comment.userId,
+				name: comment.userName,
+				image: comment.userImage ?? null,
+			},
+
+			content: comment.body,
+
+			createdAt: comment.createdAt,
+
+			isOwner: currentUser?.id === comment.userId,
+		}));
+
+		setComments(formattedComments);
+
+		return created;
+	}
+
 	return (
-		<section className="space-y-8 w-full mt-6">
+		<section className="mt-6 w-full space-y-8">
 			{/* Header */}
 
 			<div className="flex items-center gap-3">
@@ -81,14 +181,14 @@ export function CommentsSection({
                         text-neutral-400
                     "
 				>
-					{totalComments}
+					{comments.length}
 				</span>
 			</div>
 
 			{/* Comment Input */}
 
-			{currentUser && onSubmitComment ? (
-				<CommentInput user={currentUser} onSubmit={onSubmitComment} />
+			{currentUser ? (
+				<CommentInput user={currentUser} onSubmit={submitComment} />
 			) : (
 				<div
 					className="
@@ -96,17 +196,12 @@ export function CommentsSection({
                         border
                         border-dashed
                         border-white/10
-                        bg-white/3
+                        bg-white/[0.03]
                         p-10
                         text-center
                     "
 				>
-					<p
-						className="
-                            text-lg
-                            text-neutral-400
-                        "
-					>
+					<p className="text-lg text-neutral-400">
 						Sign in to join the discussion.
 					</p>
 				</div>
@@ -114,13 +209,26 @@ export function CommentsSection({
 
 			{/* Comments */}
 
-			{comments.length === 0 ? (
+			{isLoading ? (
 				<div
 					className="
                         rounded-[28px]
                         border
                         border-white/10
-                        bg-white/3
+                        bg-white/[0.03]
+                        py-20
+                        text-center
+                    "
+				>
+					<p className="text-neutral-400">Loading discussion...</p>
+				</div>
+			) : comments.length === 0 ? (
+				<div
+					className="
+                        rounded-[28px]
+                        border
+                        border-white/10
+                        bg-white/[0.03]
                         py-20
                         text-center
                     "

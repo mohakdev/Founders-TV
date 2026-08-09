@@ -1,11 +1,10 @@
-"use client";
-
-import { VideoPlayer } from "../../../components/watch/video-player";
-import { VideoHeader } from "../../../components/watch/video-header";
-import { VideoDescription } from "../../../components/watch/video-description";
-import { Navbar } from "../../../components/layout/navbar";
+import axios from "axios";
+import type { Comment } from "@/components/watch/comments/comment-section";
 import { CommentsSection } from "@/components/watch/comments/comment-section";
-import { Comment } from "@/components/watch/comments/comment-section";
+import { Navbar } from "../../../components/layout/navbar";
+import { VideoDescription } from "../../../components/watch/video-description";
+import { VideoHeader } from "../../../components/watch/video-header";
+import { VideoPlayer } from "../../../components/watch/video-player";
 
 const comments: Comment[] = [
 	{
@@ -23,8 +22,12 @@ const comments: Comment[] = [
 		isOwner: false,
 	},
 ];
-
-export default function Watch() {
+interface WatchProps {
+	params: Promise<{ id: string }>;
+}
+export const dynamic = "force-dynamic";
+export default async function Watch({ params }: WatchProps) {
+	const { id } = await params;
 	return (
 		<main className="flex min-h-screen flex-col items-center pt-18 p-8">
 			<Navbar />
@@ -33,7 +36,7 @@ export default function Watch() {
 				title="Foundathon 3"
 			/>
 			<VideoHeader
-				title="Foundathon 3.0"
+				title="Foundathon 3"
 				collection="Foundathon"
 				views={0}
 				likes={0}
@@ -48,12 +51,7 @@ export default function Watch() {
 			/>
 			<CommentsSection
 				currentUser={{ name: "John Doe", image: null }}
-				comments={comments}
-				totalComments={comments.length}
-				onSubmitComment={async (comment) => {
-					// Handle comment submission logic here
-					console.log("New comment submitted:", comment);
-				}}
+				videoId={id}
 			/>
 		</main>
 	);
